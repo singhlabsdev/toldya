@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/mark.webp" width="220" height="220" alt="A round green figure sits against a wall covered in chalk tally marks, adding one more, looking straight at you."></p>
+
 <h1 align="center">toldya</h1>
 
 <p align="center"><b>Stop repeating yourself to your AI.</b></p>
