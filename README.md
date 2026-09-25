@@ -55,8 +55,9 @@ and how often since.
 
 ## Share it
 
-`npx toldya --all --card` opens your card in the browser. One click saves it as a PNG.
-It's drawn on your machine; nothing is uploaded.
+`npx toldya --all --card` opens your card in the browser. Save it as a PNG, then use the
+**Post on X** or **Share on LinkedIn** button: the post text is written for you. The card is
+drawn on your machine; nothing leaves it unless you click share.
 
 <p align="center"><img src="assets/card.png" width="100%" alt="toldya card: Things I keep telling my AI. keep it simple 41 times, dont complex this 29 times, dont assume 15 times"></p>
 

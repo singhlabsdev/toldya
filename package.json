@@ -1,6 +1,6 @@
 {
   "name": "toldya",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Stop repeating yourself to your AI. Finds what you keep telling your coding agent, writes it into CLAUDE.md / AGENTS.md, and counts whether it stopped.",
   "bin": {
     "toldya": "bin/toldya.mjs"

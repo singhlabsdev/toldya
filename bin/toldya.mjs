@@ -15,7 +15,7 @@ import {
 } from '../lib/core.mjs';
 import { cardHtml } from '../lib/card.mjs';
 
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 const argv = process.argv.slice(2);
 const has = (f) => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -123,7 +123,7 @@ if (has('--card')) {
     : [process.platform === 'darwin' ? 'open' : 'xdg-open', [file]];
   try { spawn(open[0], open[1], { detached: true, stdio: 'ignore' }).on('error', () => {}).unref(); } catch {}
   console.log(`Your card: ${file}
-It opens in your browser. Click "Save as PNG". Nothing is uploaded.`);
+It opens in your browser: save it as a PNG, then post it. Nothing leaves your machine unless you click share.`);
   process.exit(0);
 }
 
