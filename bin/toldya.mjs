@@ -5,11 +5,11 @@
 // finds the corrections you keep repeating, offers each one as a line for the
 // rule file your agent reads, and next time counts whether you still say it.
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { createInterface } from 'node:readline/promises';
 import {
-  CLAUDE_ROOT, claudeProjects, projectFor, encodeProject, readClaudeSession,
+  CLAUDE_ROOT, claudeProjects, projectFor, readClaudeSession,
   corrections, group, repeats, toRule, alreadyWritten, beforeAfter, isRetry,
 } from '../lib/core.mjs';
 
@@ -24,6 +24,8 @@ if (has('--help') || has('-h')) {
   toldya            this project: what you keep telling Claude Code here
   toldya --all      every project; rules go to your global ~/.claude/CLAUDE.md
   --min N           only repeats said at least N times (default 3)
+  --to FILE         write rules to FILE instead (e.g. AGENTS.md)
+  --add 1,3         add repeats by their number, without asking
   --dry             show the report, change nothing
   --json            machine-readable report, change nothing
 
@@ -66,14 +68,15 @@ const items = said.filter((i) => !isRetry(i.s));
 const found = repeats(group(items), min);
 
 // Where rules go, and what's already written there.
-const target = all ? join(homedir(), '.claude', 'CLAUDE.md') : join(cwd, 'CLAUDE.md');
-const ruleFiles = all ? [target] : [join(cwd, 'CLAUDE.md'), join(cwd, 'AGENTS.md')];
+const target = resolve(opt('--to', all ? join(homedir(), '.claude', 'CLAUDE.md') : join(cwd, 'CLAUDE.md')));
+const ruleFiles = [...new Set(all ? [target] : [target, join(cwd, 'CLAUDE.md'), join(cwd, 'AGENTS.md')])];
 const written = ruleFiles.filter(existsSync).map((f) => readFileSync(f, 'utf8')).join('\n');
 
 // Rules toldya added before, so we can count whether they worked.
 const stateDir = join(homedir(), '.toldya');
 const stateFile = join(stateDir, 'state.json');
-const key = all ? '*' : encodeProject(cwd);
+// Rules are remembered per rule file: that's where they live.
+const key = target;
 let state = {};
 try { state = JSON.parse(readFileSync(stateFile, 'utf8')); } catch {}
 const ours = state[key]?.rules || [];
@@ -111,31 +114,39 @@ if (!fresh.length) {
 
 console.log('You keep telling your AI:');
 const shown = fresh.slice(0, 10);
-for (const r of shown) {
+shown.forEach((r, n) => {
   const note = alreadyWritten(r.phrase, written) ? '   ← already in your rules, still repeated' : '';
-  console.log(`  ${String(r.count).padStart(3)}×  ${r.phrase}   (${r.sessions} sessions)${note}`);
-}
+  console.log(`  ${String(n + 1).padStart(2)}. ${String(r.count).padStart(3)}×  ${r.phrase}   (${r.sessions} sessions)${note}`);
+});
 if (retries >= min) console.log(`\nAnd ${retries} times you told it to try or check again: its first go missed.`);
 const spanDays = dates.length ? (new Date(dates.at(-1)) - new Date(dates[0])) / 864e5 : 0;
 if (spanDays < 35) console.log('\nClaude Code keeps about 30 days of history by default, so older repeats are not counted.');
 
-if (has('--dry') || !process.stdin.isTTY) {
-  if (!has('--dry')) console.log('Run in a terminal to add these as rules.');
+const picks = opt('--add', null);
+if (has('--dry') || (!picks && !process.stdin.isTTY)) {
+  if (!has('--dry')) console.log('\nRun in a terminal to add these as rules, or pick them with --add 1,3.');
   process.exit(0);
 }
 
-// Ask before touching any file. Each rule is your own words.
-const rl = createInterface({ input: process.stdin, output: process.stdout });
+// Ask before touching any file (or take the numbers given). Each rule is your own words.
 const add = [];
-console.log(`\nAdd them to ${target}? For each: y = add, n = skip, e = edit the wording.\n`);
-for (const r of shown) {
-  if (alreadyWritten(r.phrase, written)) continue;
-  let text = toRule(r.phrase);
-  const a = (await rl.question(`  ${text}  [y/n/e] `)).trim().toLowerCase();
-  if (a === 'e') text = toRule((await rl.question('    new wording: ')).trim() || r.phrase);
-  if (a === 'y' || a === 'e') add.push(text);
+if (picks) {
+  for (const n of String(picks).split(',').map((x) => parseInt(x, 10))) {
+    const r = shown[n - 1];
+    if (r && !alreadyWritten(r.phrase, written)) add.push(toRule(r.phrase));
+  }
+} else {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  console.log(`\nAdd them to ${target}? For each: y = add, n = skip, e = edit the wording.\n`);
+  for (const r of shown) {
+    if (alreadyWritten(r.phrase, written)) continue;
+    let text = toRule(r.phrase);
+    const a = (await rl.question(`  ${text}  [y/n/e] `)).trim().toLowerCase();
+    if (a === 'e') text = toRule((await rl.question('    new wording: ')).trim() || r.phrase);
+    if (a === 'y' || a === 'e') add.push(text);
+  }
+  rl.close();
 }
-rl.close();
 
 if (!add.length) { console.log('\nNothing added.'); process.exit(0); }
 
@@ -151,4 +162,5 @@ const now = new Date().toISOString();
 state[key] = { rules: [...ours, ...add.map((text) => ({ text, addedAt: now }))] };
 mkdirSync(stateDir, { recursive: true });
 writeFileSync(stateFile, JSON.stringify(state, null, 2));
-console.log(`\nAdded ${add.length} rule${add.length > 1 ? 's' : ''} to ${target}. Run toldya again in a week to see if they stuck.`);
+const shortTarget = target.startsWith(cwd) ? target.slice(cwd.length + 1) : target.replace(homedir(), '~');
+console.log(`\nAdded ${add.length} rule${add.length > 1 ? 's' : ''} to ${shortTarget}. Run toldya again in a week to see if they stuck.`);
