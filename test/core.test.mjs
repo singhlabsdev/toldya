@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { corrections, group, repeats, similar, alreadyWritten, beforeAfter, toRule, encodeProject } from '../lib/core.mjs';
+import { corrections, group, repeats, similar, alreadyWritten, beforeAfter, toRule, encodeProject, isRetry } from '../lib/core.mjs';
 
 const msg = (text, session, ts = '2026-09-01T00:00:00Z') => ({ text, session, ts });
 
@@ -35,4 +35,10 @@ test('rules, already-written check, before/after count', () => {
   ]);
   assert.deepEqual(beforeAfter({ text: 'Keep it simple.', addedAt: '2026-09-10T00:00:00Z' }, items), { before: 2, after: 1 });
   assert.equal(encodeProject(String.raw`D:\My work\app`), 'D--My-work-app');
+});
+
+test('rewordings merge; try-again is a retry, not a rule', () => {
+  assert.ok(similar("Don't complicate it", 'dont complex this') >= 0.5);
+  for (const t of ['try again', 'please check again', 'ok try again', 'Try again.', 'so try again', 'connected again']) assert.ok(isRetry(t), t);
+  assert.ok(!isRetry("don't try to fix everything again"));
 });

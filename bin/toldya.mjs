@@ -10,7 +10,7 @@ import { homedir } from 'node:os';
 import { createInterface } from 'node:readline/promises';
 import {
   CLAUDE_ROOT, claudeProjects, projectFor, encodeProject, readClaudeSession,
-  corrections, group, repeats, toRule, alreadyWritten, beforeAfter,
+  corrections, group, repeats, toRule, alreadyWritten, beforeAfter, isRetry,
 } from '../lib/core.mjs';
 
 const VERSION = '0.1.0';
@@ -60,7 +60,9 @@ for (const p of chosen) {
     for (const m of ms) messages.push({ ...m, session: `${p}/${f}` });
   }
 }
-const items = corrections(messages);
+const said = corrections(messages);
+const retries = said.filter((i) => isRetry(i.s)).length;
+const items = said.filter((i) => !isRetry(i.s));
 const found = repeats(group(items), min);
 
 // Where rules go, and what's already written there.
@@ -81,7 +83,7 @@ const day = (t) => (t ? new Date(t).toLocaleDateString('en-GB', { day: 'numeric'
 
 if (has('--json')) {
   console.log(JSON.stringify({
-    sessions, messages: messages.length, corrections: items.length,
+    sessions, messages: messages.length, corrections: items.length, retries,
     from: dates[0] || null, to: dates.at(-1) || null,
     repeats: found.map((r) => ({ phrase: r.phrase, count: r.count, sessions: r.sessions,
       alreadyWritten: alreadyWritten(r.phrase, written) })),
@@ -113,7 +115,9 @@ for (const r of shown) {
   const note = alreadyWritten(r.phrase, written) ? '   ← already in your rules, still repeated' : '';
   console.log(`  ${String(r.count).padStart(3)}×  ${r.phrase}   (${r.sessions} sessions)${note}`);
 }
-console.log('\nClaude Code keeps about 30 days of history by default, so older repeats are not counted.');
+if (retries >= min) console.log(`\nAnd ${retries} times you told it to try or check again: its first go missed.`);
+const spanDays = dates.length ? (new Date(dates.at(-1)) - new Date(dates[0])) / 864e5 : 0;
+if (spanDays < 35) console.log('\nClaude Code keeps about 30 days of history by default, so older repeats are not counted.');
 
 if (has('--dry') || !process.stdin.isTTY) {
   if (!has('--dry')) console.log('Run in a terminal to add these as rules.');
