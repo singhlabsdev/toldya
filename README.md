@@ -41,6 +41,7 @@ npx toldya --to AGENTS.md   # write rules somewhere else
 npx toldya --add 1,3        # take repeats 1 and 3 without the prompts
 npx toldya --min 5          # only things you said 5+ times
 npx toldya --json           # machine-readable report
+npx toldya --card           # an image of your top repeats, to share
 ```
 
 Without `--dry` or `--add`, it asks about each repeat: **y** adds it, **n** skips it,
@@ -49,6 +50,13 @@ Nothing is written without a yes.
 
 Run it again a week later and every rule it added shows how often you said it before,
 and how often since.
+
+## Share it
+
+`npx toldya --all --card` opens your card in the browser. One click saves it as a PNG.
+It's drawn on your machine; nothing is uploaded.
+
+<p align="center"><img src="assets/card.png" width="100%" alt="toldya card: Things I keep telling my AI. keep it simple 41 times, dont complex this 29 times, dont assume 15 times"></p>
 
 ## What it reads, and what it doesn't
 
@@ -68,7 +76,6 @@ roughly a month.
 
 - **Team mode:** `npx toldya owner/repo` reads a repo's pull-request review comments (from
   people or any review bot), finds what reviewers keep writing, and opens one PR into `AGENTS.md`.
-- **A share card:** one image of your top repeats, for when you want to show someone.
 - Codex history (not tested on real files yet, so not claimed).
 
 ## Requirements

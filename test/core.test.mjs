@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { cardHtml } from '../lib/card.mjs';
 import { corrections, group, repeats, similar, alreadyWritten, beforeAfter, toRule, encodeProject, isRetry } from '../lib/core.mjs';
 
 const msg = (text, session, ts = '2026-09-01T00:00:00Z') => ({ text, session, ts });
@@ -41,4 +42,10 @@ test('rewordings merge; try-again is a retry, not a rule', () => {
   assert.ok(similar("Don't complicate it", 'dont complex this') >= 0.5);
   for (const t of ['try again', 'please check again', 'ok try again', 'Try again.', 'so try again', 'connected again']) assert.ok(isRetry(t), t);
   assert.ok(!isRetry("don't try to fix everything again"));
+});
+
+test('card keeps a phrase inside its script block', () => {
+  const html = cardHtml({ repeats: [{ count: 3, phrase: 'stop </script><b>' }], sessions: 2, from: 'a', to: 'b' });
+  assert.equal(html.match(/<\/script>/g).length, 1);
+  assert.ok(html.includes('stop ' + String.fromCharCode(92) + 'u003c/script>'));
 });

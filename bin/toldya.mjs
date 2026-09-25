@@ -5,15 +5,17 @@
 // finds the corrections you keep repeating, offers each one as a line for the
 // rule file your agent reads, and next time counts whether you still say it.
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
+import { spawn } from 'node:child_process';
 import { join, resolve } from 'node:path';
-import { homedir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { createInterface } from 'node:readline/promises';
 import {
   CLAUDE_ROOT, claudeProjects, projectFor, readClaudeSession,
   corrections, group, repeats, toRule, alreadyWritten, beforeAfter, isRetry,
 } from '../lib/core.mjs';
+import { cardHtml } from '../lib/card.mjs';
 
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 const argv = process.argv.slice(2);
 const has = (f) => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -27,6 +29,7 @@ if (has('--help') || has('-h')) {
   --to FILE         write rules to FILE instead (e.g. AGENTS.md)
   --add 1,3         add repeats by their number, without asking
   --dry             show the report, change nothing
+  --card            make an image of your top repeats, to share
   --json            machine-readable report, change nothing
 
 Reads Claude Code's own history on this machine. Sends nothing anywhere.`);
@@ -109,6 +112,18 @@ if (ours.length) {
 const fresh = found.filter((r) => !ours.some((o) => o.text === toRule(r.phrase)));
 if (!fresh.length) {
   console.log(found.length ? 'Nothing new you keep repeating. Nice.' : `No correction said ${min}+ times across sessions yet.`);
+  process.exit(0);
+}
+
+if (has('--card')) {
+  if (!found.length) { console.log(`No correction said ${min}+ times yet, so no card.`); process.exit(0); }
+  const file = join(tmpdir(), 'toldya-card.html');
+  writeFileSync(file, cardHtml({ repeats: found, sessions, from: day(dates[0]), to: day(dates.at(-1)) }));
+  const open = process.platform === 'win32' ? ['cmd', ['/c', 'start', '', file]]
+    : [process.platform === 'darwin' ? 'open' : 'xdg-open', [file]];
+  try { spawn(open[0], open[1], { detached: true, stdio: 'ignore' }).on('error', () => {}).unref(); } catch {}
+  console.log(`Your card: ${file}
+It opens in your browser. Click "Save as PNG". Nothing is uploaded.`);
   process.exit(0);
 }
 
