@@ -2,24 +2,64 @@
 
 **Stop repeating yourself to your AI.**
 
-You keep telling your coding agent the same things. "Don't create a new file." "Use pnpm."
-"Run the tests before you say it's done." toldya finds what you keep repeating, writes it into
-the rule file your agent reads (`CLAUDE.md` / `AGENTS.md`), then counts whether it stopped.
+You keep telling your coding agent the same things. "Keep it simple." "Don't complicate it."
+"Check again." toldya reads what you typed to Claude Code, finds the corrections you keep
+repeating, offers each one as a line for your `CLAUDE.md`, and next time counts whether you
+still have to say it.
 
-## Status
+```bash
+npx toldya --all --dry
+```
 
-`0.0.1` reserves the name and does nothing else: it prints what's coming, reads nothing and
-writes nothing. **v0.1** is being built.
+This is a real run, on the author's own history:
 
-## Planned for v0.1
+```
+toldya · 142 sessions (2 Jul – 25 Sept) · 6355 of your messages · 600 corrections
 
-- **Solo mode:** `npx toldya` reads your local Claude Code and Codex history, finds the corrections
-  you repeat, and offers lines for `CLAUDE.md`. You approve each one. Nothing leaves your machine.
+You keep telling your AI:
+   40×  keep it simple   (36 sessions)
+   38×  try again   (25 sessions)
+   19×  Don't complicate it   (14 sessions)
+   18×  check again   (10 sessions)
+   11×  dont assume   (11 sessions)
+```
+
+## Use it
+
+```bash
+npx toldya            # this project: offers rules for ./CLAUDE.md
+npx toldya --all      # every project: offers rules for ~/.claude/CLAUDE.md
+npx toldya --dry      # report only, change nothing
+npx toldya --json     # machine-readable report
+npx toldya --min 5    # only things you said 5+ times
+```
+
+Without `--dry`, it asks about each repeat: **y** adds it, **n** skips it, **e** lets you reword
+it first. Rules go under a `## Things I kept repeating` heading. Nothing is written without a yes.
+
+Run it again a week later and it shows, for every rule it added, how often you said it before
+and how often since.
+
+## What it reads, and what it doesn't
+
+- Only **your own messages** in Claude Code's history on this machine
+  (`~/.claude/projects`). Not the AI's replies, not tool output, not files.
+- Long messages are treated as pastes (briefs, logs) and skipped. Questions and "I don't
+  understand" are not corrections, so they're skipped too.
+- A repeat counts only if it shows up in **at least two sessions**.
+- **Sends nothing anywhere.** No account, no telemetry, no network calls.
+
+Claude Code keeps about 30 days of history by default, so toldya sees roughly a month.
+
+## Coming next
+
 - **Team mode:** `npx toldya owner/repo` reads a repo's pull-request review comments (from people
-  or any review bot), finds the repeats, and opens one PR adding them to `AGENTS.md`.
-- **Count:** next run shows how often each repeat came back after the rule was added.
+  or any review bot), finds what reviewers keep writing, and opens one PR into `AGENTS.md`.
+- Codex history (not tested on real files yet, so not claimed).
 
-No account. No telemetry.
+## Requirements
+
+Node 18+. No dependencies.
 
 ## License
 

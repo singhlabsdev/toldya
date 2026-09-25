@@ -1,12 +1,13 @@
 {
   "name": "toldya",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Stop repeating yourself to your AI. Finds what you keep telling your coding agent, writes it into CLAUDE.md / AGENTS.md, and counts whether it stopped.",
   "bin": {
-    "toldya": "bin/toldya.js"
+    "toldya": "bin/toldya.mjs"
   },
   "files": [
     "bin",
+    "lib",
     "README.md",
     "LICENSE"
   ],
@@ -29,5 +30,8 @@
     "url": "git+https://github.com/singhlabsdev/toldya.git"
   },
   "author": "Singh Labs (Sevenopt Solutions Private Limited) <info@singhlabs.dev>",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  }
 }
