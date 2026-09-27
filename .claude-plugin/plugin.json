@@ -16,5 +16,8 @@
     "rules",
     "corrections"
   ],
-  "icon": "./.claude-plugin/icon.png"
+  "icon": "./.claude-plugin/icon.png",
+  "supportUrl": "https://github.com/singhlabsdev/toldya/issues",
+  "documentationUrl": "https://github.com/singhlabsdev/toldya#readme",
+  "privacyPolicyUrl": "https://singhlabs.dev/privacy/"
 }
