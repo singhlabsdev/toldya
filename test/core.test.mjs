@@ -49,3 +49,12 @@ test('card keeps a phrase inside its script block', () => {
   assert.equal(html.match(/<\/script>/g).length, 1);
   assert.ok(html.includes('stop ' + String.fromCharCode(92) + 'u003c/script>'));
 });
+
+test('plugin skill and manifest pin the version being released', async () => {
+  const { readFileSync } = await import('node:fs');
+  const v = JSON.parse(readFileSync(new URL('../package.json', import.meta.url))).version;
+  const skill = readFileSync(new URL('../skills/toldya/SKILL.md', import.meta.url), 'utf8');
+  const pins = [...skill.matchAll(/toldya@([\w.-]+)/g)].map((m) => m[1]);
+  assert.ok(pins.length && pins.every((p) => p === v), `SKILL.md pins ${pins} but package.json is ${v}`);
+  assert.equal(JSON.parse(readFileSync(new URL('../.claude-plugin/plugin.json', import.meta.url))).version, v);
+});
