@@ -15,7 +15,7 @@ import {
 } from '../lib/core.mjs';
 import { cardHtml } from '../lib/card.mjs';
 
-const VERSION = '0.3.0';
+const VERSION = '0.3.1';
 const argv = process.argv.slice(2);
 const has = (f) => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -127,6 +127,7 @@ It opens in your browser: save it as a PNG, then post it. Nothing leaves your ma
   process.exit(0);
 }
 
+const STAR = '\nFound something? A star helps other people find toldya: github.com/singhlabsdev/toldya';
 console.log('You keep telling your AI:');
 const shown = fresh.slice(0, 10);
 shown.forEach((r, n) => {
@@ -140,6 +141,7 @@ if (spanDays < 35) console.log('\nClaude Code keeps about 30 days of history by 
 const picks = opt('--add', null);
 if (has('--dry') || (!picks && !process.stdin.isTTY)) {
   if (!has('--dry')) console.log('\nRun in a terminal to add these as rules, or pick them with --add 1,3.');
+  console.log(STAR);
   process.exit(0);
 }
 
@@ -179,3 +181,4 @@ mkdirSync(stateDir, { recursive: true });
 writeFileSync(stateFile, JSON.stringify(state, null, 2));
 const shortTarget = target.startsWith(cwd) ? target.slice(cwd.length + 1) : target.replace(homedir(), '~');
 console.log(`\nAdded ${add.length} rule${add.length > 1 ? 's' : ''} to ${shortTarget}. Run toldya again in a week to see if they stuck.`);
+console.log(STAR);
