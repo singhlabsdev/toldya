@@ -53,13 +53,23 @@ Nothing is written without a yes.
 Run it again a week later and every rule it added shows how often you said it before,
 and how often since.
 
+## In Claude Code, as a plugin
+
+```
+/plugin marketplace add singhlabsdev/toldya
+/plugin install toldya@toldya
+```
+
+Then ask Claude *"what do I keep repeating?"*. It runs toldya, shows you the list, and adds
+only the ones you pick.
+
 ## Share it
 
 `npx toldya --all --card` opens your card in the browser. Save it as a PNG, then use the
 **Post on X** or **Share on LinkedIn** button: the post text is written for you. The card is
 drawn on your machine; nothing leaves it unless you click share.
 
-<p align="center"><img src="assets/card.png" width="100%" alt="toldya card: Things I keep telling my AI. keep it simple 41 times, dont complex this 29 times, dont assume 15 times"></p>
+<p align="center"><img src="assets/card.png" width="100%" alt="toldya card: I have told my AI keep it simple 42 times. Also: dont complex this 29, dont assume 15, i dont want later on 13"></p>
 
 ## What it reads, and what it doesn't
 
@@ -77,8 +87,6 @@ roughly a month.
 
 ## Coming next
 
-- **Team mode:** `npx toldya owner/repo` reads a repo's pull-request review comments (from
-  people or any review bot), finds what reviewers keep writing, and opens one PR into `AGENTS.md`.
 - Codex history (not tested on real files yet, so not claimed).
 
 ## Requirements

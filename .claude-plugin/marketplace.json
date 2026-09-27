@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "toldya",
+  "description": "Stop repeating yourself to your AI.",
+  "owner": {
+    "name": "Singh Labs",
+    "url": "https://github.com/singhlabsdev"
+  },
+  "plugins": [
+    {
+      "name": "toldya",
+      "description": "Finds the corrections you keep repeating to Claude Code and writes them into CLAUDE.md after you approve each one.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

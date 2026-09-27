@@ -1,0 +1,13 @@
+{
+  "name": "toldya",
+  "version": "0.3.2",
+  "description": "Finds the corrections you keep repeating to Claude Code and writes them into CLAUDE.md, with your yes on each one. Then counts whether they stopped.",
+  "author": {
+    "name": "Singh Labs",
+    "url": "https://github.com/singhlabsdev"
+  },
+  "homepage": "https://singhlabs.dev/toldya/",
+  "repository": "https://github.com/singhlabsdev/toldya",
+  "license": "MIT",
+  "keywords": ["claude-md", "agents-md", "memory", "rules", "corrections"]
+}

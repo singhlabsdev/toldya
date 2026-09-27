@@ -15,7 +15,7 @@ import {
 } from '../lib/core.mjs';
 import { cardHtml } from '../lib/card.mjs';
 
-const VERSION = '0.3.1';
+const VERSION = '0.3.2';
 const argv = process.argv.slice(2);
 const has = (f) => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -37,7 +37,7 @@ Reads Claude Code's own history on this machine. Sends nothing anywhere.`);
 }
 if (has('--version') || has('-v')) { console.log(VERSION); process.exit(0); }
 if (argv.some((a) => /^[\w.-]+\/[\w.-]+$/.test(a))) {
-  console.log('Team mode (owner/repo) is coming next. For now: run `npx toldya` in your project.');
+  console.log('toldya reads your own Claude Code history, not a repo. Run `npx toldya` in your project.');
   process.exit(0);
 }
 
