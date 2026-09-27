@@ -69,6 +69,8 @@ only the ones you pick.
 **Post on X** or **Share on LinkedIn** button: the post text is written for you. The card is
 drawn on your machine; nothing leaves it unless you click share.
 
+Post yours in [Share your card](https://github.com/singhlabsdev/toldya/discussions/1). What's your top line?
+
 <p align="center"><img src="assets/card.png" width="100%" alt="toldya card: I have told my AI keep it simple 42 times. Also: dont complex this 29, dont assume 15, i dont want later on 13"></p>
 
 ## What it reads, and what it doesn't
