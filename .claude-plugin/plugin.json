@@ -9,5 +9,12 @@
   "homepage": "https://singhlabs.dev/toldya/",
   "repository": "https://github.com/singhlabsdev/toldya",
   "license": "MIT",
-  "keywords": ["claude-md", "agents-md", "memory", "rules", "corrections"]
+  "keywords": [
+    "claude-md",
+    "agents-md",
+    "memory",
+    "rules",
+    "corrections"
+  ],
+  "icon": "./.claude-plugin/icon.png"
 }
