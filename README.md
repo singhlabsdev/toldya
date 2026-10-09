@@ -28,9 +28,9 @@ it counts whether you still had to say it.
 
 A real run. Not a mock-up.
 
-<p align="center"><img src="assets/report.png" width="100%" alt="toldya report: keep it simple 19 times in 18 sessions, Don't complicate it 12 times, dont ask me 5 times, and 42 times it was told to try or check again"></p>
+<p align="center"><img src="assets/report.png" width="100%" alt="toldya report: keep it simple 18 times in 17 sessions, Don't complicate it 12 times, dont ask me 5 times, and 42 times it was told to try or check again"></p>
 
-175 sessions. "Keep it simple" 19 times. Rewordings and typos count as one habit: "Don't
+175 sessions. "Keep it simple" 18 times. Rewordings and typos count as one habit: "Don't
 complicate it" and "dont complex this" are the same thing said twice.
 
 ## Use it
@@ -71,7 +71,7 @@ drawn on your machine; nothing leaves it unless you click share.
 
 Post yours in [Share your card](https://github.com/singhlabsdev/toldya/discussions/1). What's your top line?
 
-<p align="center"><img src="assets/card.png" width="100%" alt="toldya card: I have told my AI keep it simple 19 times. Also: Don't complicate it 12, dont ask me 5, dont assume 4"></p>
+<p align="center"><img src="assets/card.png" width="100%" alt="toldya card: I have told my AI keep it simple 18 times. Also: Don't complicate it 12, dont ask me 5, dont assume 4"></p>
 
 ## What it reads, and what it doesn't
 
