@@ -130,3 +130,44 @@ test('a habit is named by the wording typed in the most sessions, never a typo o
   const resent = [...Array(3).fill(['keep it simpel', 'a']), ['keep it simple', 'b'], ['Keep it simple.', 'c']].map(([t, s]) => msg(t, s));
   assert.equal(repeats(group(corrections(resent)), 3)[0].phrase.toLowerCase(), 'keep it simple');
 });
+
+test('before/since counts the habit the report shows, not every loose match', () => {
+  const items = corrections([
+    msg('keep it simple', 'a', '2026-09-01T00:00:00Z'),
+    msg('keep it simple', 'b', '2026-09-02T00:00:00Z'),
+    msg('keep it simple', 'c', '2026-09-20T00:00:00Z'),
+    // A different habit that only mentions simple. Matched sentence by sentence it
+    // counted towards the rule, so "before" came out bigger than the report.
+    msg('keep it short and simple', 'd', '2026-09-03T00:00:00Z'),
+    msg('keep it shorter, make the email simple', 'e', '2026-09-04T00:00:00Z'),
+  ]);
+  const groups = group(items);
+  const habit = repeats(groups, 3).find((r) => r.phrase === 'keep it simple');
+  assert.equal(habit.count, 3);
+  const n = beforeAfter({ text: 'Keep it simple.', addedAt: '2026-09-10T00:00:00Z' }, items, groups);
+  assert.deepEqual(n, { before: 2, after: 1 });
+  assert.equal(n.before + n.after, habit.count, 'before + since is the number the report showed');
+});
+
+test("being lost is not a correction: \"I don't get it\" is skipped, \"don't get rid of\" is kept", () => {
+  const said = ['i dont get it', "I didn't get that", 'not getting it', "don't get rid of the tests", "don't get it wrong this time"];
+  assert.deepEqual(corrections(said.map((t) => msg(t, 'a'))).map((i) => i.s), ["don't get rid of the tests", "don't get it wrong this time"]);
+});
+
+test('the report asks for nothing back: no star request', async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const { tmpdir } = await import('node:os');
+  const { execFileSync } = await import('node:child_process');
+  const { fileURLToPath } = await import('node:url');
+  const home = mkdtempSync(join(tmpdir(), 'toldya-'));
+  const dir = join(home, '.claude', 'projects', 'D--app');
+  mkdirSync(dir, { recursive: true });
+  const line = (uuid, s, ts) => JSON.stringify({ type: 'user', uuid, sessionId: s, timestamp: ts, message: { role: 'user', content: 'keep it simple' } });
+  writeFileSync(join(dir, 'one.jsonl'), [line('u1', 'one', '2026-09-01T10:00:00Z'), line('u2', 'one', '2026-09-01T10:01:00Z')].join('\n'));
+  writeFileSync(join(dir, 'two.jsonl'), line('u3', 'two', '2026-09-02T10:00:00Z'));
+  const out = execFileSync(process.execPath, [fileURLToPath(new URL('../bin/toldya.mjs', import.meta.url)), '--all', '--dry'],
+    { cwd: home, env: { ...process.env, HOME: home, USERPROFILE: home }, encoding: 'utf8' });
+  assert.match(out, /keep it simple/);
+  assert.doesNotMatch(out, /star/i);
+});

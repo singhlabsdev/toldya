@@ -15,7 +15,7 @@ import {
 } from '../lib/core.mjs';
 import { cardHtml } from '../lib/card.mjs';
 
-const VERSION = '0.3.4';
+const VERSION = '0.3.5';
 const argv = process.argv.slice(2);
 const has = (f) => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -75,7 +75,8 @@ for (const { session, ms } of files) {
 const said = corrections(messages);
 const retries = said.filter((i) => isRetry(i.s)).length;
 const items = said.filter((i) => !isRetry(i.s));
-const found = repeats(group(items), min);
+const groups = group(items);
+const found = repeats(groups, min);
 
 // Where rules go, and what's already written there.
 const target = resolve(opt('--to', all ? join(homedir(), '.claude', 'CLAUDE.md') : join(cwd, 'CLAUDE.md')));
@@ -100,7 +101,7 @@ if (has('--json')) {
     from: dates[0] || null, to: dates.at(-1) || null,
     repeats: found.map((r) => ({ phrase: r.phrase, count: r.count, sessions: r.sessions,
       alreadyWritten: alreadyWritten(r.phrase, written) })),
-    rules: ours.map((r) => ({ ...r, ...beforeAfter(r, items) })),
+    rules: ours.map((r) => ({ ...r, ...beforeAfter(r, items, groups) })),
   }, null, 2));
   process.exit(0);
 }
@@ -110,7 +111,7 @@ console.log(`\ntoldya · ${sessions} sessions (${day(dates[0])} – ${day(dates.
 if (ours.length) {
   console.log('Rules toldya added earlier:');
   for (const r of ours) {
-    const { before, after } = beforeAfter(r, items);
+    const { before, after } = beforeAfter(r, items, groups);
     console.log(`  "${r.text}"  said ${before}× before · ${after}× since (added ${day(r.addedAt)})`);
   }
   console.log('');
@@ -134,7 +135,6 @@ It opens in your browser: save it as a PNG, then post it. Nothing leaves your ma
   process.exit(0);
 }
 
-const STAR = '\nFound something? A star helps other people find toldya: github.com/singhlabsdev/toldya';
 console.log('You keep telling your AI:');
 const shown = fresh.slice(0, 10);
 shown.forEach((r, n) => {
@@ -148,7 +148,6 @@ if (spanDays < 35) console.log('\nClaude Code keeps about 30 days of history by 
 const picks = opt('--add', null);
 if (has('--dry') || (!picks && !process.stdin.isTTY)) {
   if (!has('--dry')) console.log('\nRun in a terminal to add these as rules, or pick them with --add 1,3.');
-  console.log(STAR);
   process.exit(0);
 }
 
@@ -188,4 +187,3 @@ mkdirSync(stateDir, { recursive: true });
 writeFileSync(stateFile, JSON.stringify(state, null, 2));
 const shortTarget = target.startsWith(cwd) ? target.slice(cwd.length + 1) : target.replace(homedir(), '~');
 console.log(`\nAdded ${add.length} rule${add.length > 1 ? 's' : ''} to ${shortTarget}. Run toldya again in a week to see if they stuck.`);
-console.log(STAR);
