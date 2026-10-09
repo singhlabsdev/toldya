@@ -1,8 +1,8 @@
 """Render assets/demo.gif and assets/report.png from captured real runs.
 
 The text on every frame is the tool's actual output, captured into demo/run*.txt by:
-  toldya --all --min 6 --dry                      > run1.txt
-  toldya --all --min 6 --add 1,2,4 --to CLAUDE.md > run2.txt
+  toldya --all --min 4 --dry                      > run1.txt
+  toldya --all --min 4 --add 1,2,4 --to CLAUDE.md > run2.txt
   cat CLAUDE.md                                   > run3.txt
 Only the typing animation is added. Usage: python scripts/demo_gif.py <folder with run*.txt>
 """
@@ -61,10 +61,10 @@ def scene(cmd, body, hold):
 read = lambda n: (src / f'run{n}.txt').read_text(encoding='utf-8').rstrip('\n').split('\n')
 run1 = read(1)
 while run1 and not run1[0].strip(): run1.pop(0)  # the tool prints a leading blank line
-scene('npx toldya --all --min 6 --dry', run1, 2600)
+scene('npx toldya --all --min 4 --dry', run1, 2600)
 report_png = frames[-1]
 run2 = read(2)
-scene('npx toldya --all --min 6 --add 1,2,4 --to CLAUDE.md', [l for l in run2 if l.startswith('Added')], 1400)
+scene('npx toldya --all --min 4 --add 1,2,4 --to CLAUDE.md', [l for l in run2 if l.startswith('Added')], 1400)
 scene('cat CLAUDE.md', read(3), 3200)
 
 report_png.save(out / 'report.png')
