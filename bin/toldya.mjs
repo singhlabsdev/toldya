@@ -15,7 +15,7 @@ import {
 } from '../lib/core.mjs';
 import { cardHtml } from '../lib/card.mjs';
 
-const VERSION = '0.3.5';
+const VERSION = '0.3.6';
 const argv = process.argv.slice(2);
 const has = (f) => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };

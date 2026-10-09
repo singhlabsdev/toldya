@@ -171,3 +171,12 @@ test('the report asks for nothing back: no star request', async () => {
   assert.match(out, /keep it simple/);
   assert.doesNotMatch(out, /star/i);
 });
+
+test('before/since picks the habit, not a one-off sentence that contains the rule', () => {
+  const at = (s, session, ts) => ({ s, session, ts });
+  const habit = { items: [at('keep it simple', 'a', '2026-09-01T00:00:00Z'), at('So keep it simple.', 'b', '2026-09-02T00:00:00Z'), at('keep it simple', 'c', '2026-09-20T00:00:00Z')] };
+  // Matches the rule just as well, word for word, and comes later in the list.
+  const oneOff = { items: [at('keep it simple and make the people relate to the problem', 'd', '2026-09-03T00:00:00Z')] };
+  const items = [...habit.items, ...oneOff.items];
+  assert.deepEqual(beforeAfter({ text: 'Keep it simple.', addedAt: '2026-09-10T00:00:00Z' }, items, [habit, oneOff]), { before: 2, after: 1 });
+});

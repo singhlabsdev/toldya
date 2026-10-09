@@ -24,8 +24,8 @@ history in `~/.claude/projects` on this machine and sends nothing anywhere.
    if the user asked for everything or passed `--all`:
 
    ```bash
-   npx -y toldya@0.3.5 --dry          # this project
-   npx -y toldya@0.3.5 --all --dry    # every project, rules go to ~/.claude/CLAUDE.md
+   npx -y toldya@0.3.6 --dry          # this project
+   npx -y toldya@0.3.6 --all --dry    # every project, rules go to ~/.claude/CLAUDE.md
    ```
 
    Show the numbered list exactly as printed. Do not reword, merge or
@@ -39,9 +39,9 @@ history in `~/.claude/projects` on this machine and sends nothing anywhere.
    so pass the numbers:
 
    ```bash
-   npx -y toldya@0.3.5 --add 1,3              # this project's CLAUDE.md
-   npx -y toldya@0.3.5 --all --add 1,3        # global ~/.claude/CLAUDE.md
-   npx -y toldya@0.3.5 --add 1,3 --to AGENTS.md
+   npx -y toldya@0.3.6 --add 1,3              # this project's CLAUDE.md
+   npx -y toldya@0.3.6 --all --add 1,3        # global ~/.claude/CLAUDE.md
+   npx -y toldya@0.3.6 --add 1,3 --to AGENTS.md
    ```
 
    If they asked for reworded rules, add them with toldya first, then edit the
