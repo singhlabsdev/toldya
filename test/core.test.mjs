@@ -88,3 +88,45 @@ test('a resumed session copies the old messages: each one counts once, in the se
   assert.equal(r.sessions, 2);
   assert.deepEqual(r.repeats.map((x) => [x.phrase, x.count, x.sessions]), [['keep it simple', 4, 2]]);
 });
+
+test('grouping gives the same habits whatever order the history is read in', () => {
+  // "comlpicate" is a typo of "complicate" but not of "complex", so a habit can
+  // hang together only through its middle: 0.3.3 split it by read order.
+  const said = [
+    ['dont comlpicate it', 'a'], ['dont comlpicate it', 'a'], ['dont comlpicate it', 'a'], ["Don't complicate it.", 'b'],
+    ["don't complicate it", 'c'], ['dont complex it', 'd'], ['please dont complicate the code', 'e'],
+    ['keep it simple', 'a'], ['keep it simpel', 'b'], ['keep it simple and short', 'c'],
+    ["I don't want tabs", 'd'], ["I don't want a database", 'e'], ['never push to main', 'a'], ['dont push to main', 'b'],
+  ];
+  const ms = said.map(([t, s], i) => msg(t, s, `2026-09-${String(i + 1).padStart(2, '0')}T00:00:00Z`));
+  const clusters = (xs) => group(corrections(xs)).map((g) => g.items.map((i) => i.s).sort().join(' | ')).sort();
+  const habits = (xs) => repeats(group(corrections(xs)), 2).map((r) => [r.phrase, r.count, r.sessions]);
+  let seed = 1;
+  const shuffled = () => [...ms].map((m) => [(seed = (seed * 16807) % 2147483647), m]).sort((a, b) => a[0] - b[0]).map(([, m]) => m);
+  for (const order of [[...ms].reverse(), shuffled(), shuffled(), shuffled()]) {
+    assert.deepEqual(clusters(order), clusters(ms));
+    assert.deepEqual(habits(order), habits(ms));
+  }
+  assert.deepEqual(habits(ms)[0], ["Don't complicate it", 7, 5]);
+});
+
+test('different things said the same way stay apart', () => {
+  assert.ok(similar("I don't want tabs", "I don't want a database") < 0.5);
+  assert.ok(similar("I don't like it", "I don't like the new logo") < 0.5);
+  assert.ok(similar('keep it simple', 'keep it short') < 0.5);
+  const ms = [
+    ...['a', 'b', 'c'].map((s) => msg("I don't want tabs", s)),
+    ...['a', 'b', 'c'].map((s) => msg("I don't want a database", s)),
+  ];
+  assert.deepEqual(repeats(group(corrections(ms)), 3).map((r) => [r.phrase, r.count]).sort(),
+    [["I don't want a database", 3], ["I don't want tabs", 3]]);
+});
+
+test('a habit is named by the wording typed in the most sessions, never a typo of it', () => {
+  // Each typed once: "simple" is one slip from both typos, they are two from each other.
+  const once = ['keep it siimple', 'keep it simple', 'keep it simpel'].map((t, i) => msg(t, `s${i}`));
+  assert.equal(repeats(group(corrections(once)), 3)[0].phrase, 'keep it simple');
+  // A typo resent in one session is still one session's spelling.
+  const resent = [...Array(3).fill(['keep it simpel', 'a']), ['keep it simple', 'b'], ['Keep it simple.', 'c']].map(([t, s]) => msg(t, s));
+  assert.equal(repeats(group(corrections(resent)), 3)[0].phrase.toLowerCase(), 'keep it simple');
+});
