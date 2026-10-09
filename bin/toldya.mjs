@@ -15,7 +15,7 @@ import {
 } from '../lib/core.mjs';
 import { cardHtml } from '../lib/card.mjs';
 
-const VERSION = '0.3.2';
+const VERSION = '0.3.3';
 const argv = process.argv.slice(2);
 const has = (f) => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -54,16 +54,23 @@ if (!chosen.length) {
   process.exit(0);
 }
 
-// Everything you typed, stamped with the session it came from.
-const messages = [];
-let sessions = 0;
+// Everything you typed, stamped with the session it came from. A resumed
+// session's file starts with a copy of the one it resumed, so each message
+// counts once: read the oldest files first, and the copy is the one skipped.
+const files = [];
 for (const p of chosen) {
   const dir = join(CLAUDE_ROOT, p);
-  for (const f of readdirSync(dir).filter((x) => x.endsWith('.jsonl'))) {
-    const ms = readClaudeSession(join(dir, f));
-    if (ms.length) sessions++;
-    for (const m of ms) messages.push({ ...m, session: `${p}/${f}` });
-  }
+  for (const f of readdirSync(dir).filter((x) => x.endsWith('.jsonl')))
+    files.push({ session: `${p}/${f}`, ms: readClaudeSession(join(dir, f)) });
+}
+files.sort((a, b) => (a.ms.at(-1)?.ts || '').localeCompare(b.ms.at(-1)?.ts || ''));
+const messages = [];
+const seen = new Set();
+let sessions = 0;
+for (const { session, ms } of files) {
+  const fresh = ms.filter((m) => !seen.has(m.id) && seen.add(m.id));
+  if (fresh.length) sessions++;
+  for (const m of fresh) messages.push({ ...m, session });
 }
 const said = corrections(messages);
 const retries = said.filter((i) => isRetry(i.s)).length;

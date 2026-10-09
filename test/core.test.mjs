@@ -58,3 +58,33 @@ test('plugin skill and manifest pin the version being released', async () => {
   assert.ok(pins.length && pins.every((p) => p === v), `SKILL.md pins ${pins} but package.json is ${v}`);
   assert.equal(JSON.parse(readFileSync(new URL('../.claude-plugin/plugin.json', import.meta.url))).version, v);
 });
+
+test('a resumed session copies the old messages: each one counts once, in the session it was typed in', async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const { tmpdir } = await import('node:os');
+  const { execFileSync } = await import('node:child_process');
+  const { fileURLToPath } = await import('node:url');
+  const line = (uuid, sessionId, ts, text) => JSON.stringify({ type: 'user', uuid, sessionId, timestamp: ts, message: { role: 'user', content: text } });
+  const typed = ['u1', 'u2', 'u3'].map((u, i) => [u, `2026-09-01T10:0${i}:00Z`, 'keep it simple']);
+  const run = (resumedAlso) => {
+    const home = mkdtempSync(join(tmpdir(), 'toldya-'));
+    const dir = join(home, '.claude', 'projects', 'D--app');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'b-old.jsonl'), typed.map(([u, ts, t]) => line(u, 'b-old', ts, t)).join('\n'));
+    // Named to sort first, so reading files in directory order would credit the copies to it.
+    writeFileSync(join(dir, 'a-resumed.jsonl'), [...typed, ...resumedAlso].map(([u, ts, t]) => line(u, 'a-resumed', ts, t)).join('\n'));
+    const out = execFileSync(process.execPath, [fileURLToPath(new URL('../bin/toldya.mjs', import.meta.url)), '--all', '--json'],
+      { cwd: home, env: { ...process.env, HOME: home, USERPROFILE: home }, encoding: 'utf8' });
+    return JSON.parse(out);
+  };
+  // Copies alone: said 3 times in one session, so not a habit yet.
+  let r = run([['u4', '2026-09-02T10:00:00Z', 'why is the build red?']]);
+  assert.equal(r.messages, 4);
+  assert.deepEqual(r.repeats, []);
+  // Said once more after resuming: 4 times, in 2 sessions.
+  r = run([['u4', '2026-09-02T10:00:00Z', 'keep it simple']]);
+  assert.equal(r.messages, 4);
+  assert.equal(r.sessions, 2);
+  assert.deepEqual(r.repeats.map((x) => [x.phrase, x.count, x.sessions]), [['keep it simple', 4, 2]]);
+});

@@ -1,6 +1,6 @@
 {
   "name": "toldya",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Finds the corrections you keep repeating to Claude Code and writes them into CLAUDE.md, with your yes on each one. Then counts whether they stopped.",
   "author": {
     "name": "Singh Labs",
