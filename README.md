@@ -28,9 +28,9 @@ it counts whether you still had to say it.
 
 A real run. Not a mock-up.
 
-<p align="center"><img src="assets/report.png" width="100%" alt="toldya report: keep it simple 40 times in 36 sessions, dont complex this 29 times, dont assume 15 times, and 71 times it was told to try or check again"></p>
+<p align="center"><img src="assets/report.png" width="100%" alt="toldya report: keep it simple 20 times in 20 sessions, dont assume 8 times, I don't like it 8 times, and 42 times it was told to try or check again"></p>
 
-142 sessions. "Keep it simple" 40 times. Rewordings and typos count as one habit: "Don't
+175 sessions. "Keep it simple" 20 times. Rewordings and typos count as one habit: "Don't
 complicate it" and "dont complex this" are the same thing said twice.
 
 ## Use it
@@ -71,7 +71,7 @@ drawn on your machine; nothing leaves it unless you click share.
 
 Post yours in [Share your card](https://github.com/singhlabsdev/toldya/discussions/1). What's your top line?
 
-<p align="center"><img src="assets/card.png" width="100%" alt="toldya card: I have told my AI keep it simple 42 times. Also: dont complex this 29, dont assume 15, i dont want later on 13"></p>
+<p align="center"><img src="assets/card.png" width="100%" alt="toldya card: I have told my AI keep it simple 20 times. Also: dont assume 8, I don't like it 8, dont comlicate that 6"></p>
 
 ## What it reads, and what it doesn't
 
@@ -79,7 +79,8 @@ Post yours in [Share your card](https://github.com/singhlabsdev/toldya/discussio
   Not the AI's replies, not tool output, not your files.
 - Long messages are treated as pastes (briefs, logs) and skipped. Questions and "I don't
   understand" are not corrections, so they're skipped too.
-- A repeat counts only if it shows up in **at least two sessions**.
+- A repeat counts only if it shows up in **at least two sessions**. A resumed session copies the
+  earlier messages into a new file; each message still counts once, in the session you typed it in.
 - Short "try again" / "check again" messages are counted separately. They mean the first
   attempt missed, but they aren't rules you can write down.
 - **Sends nothing anywhere.** No account, no telemetry, no network calls.

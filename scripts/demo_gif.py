@@ -1,8 +1,8 @@
 """Render assets/demo.gif and assets/report.png from captured real runs.
 
 The text on every frame is the tool's actual output, captured into demo/run*.txt by:
-  toldya --all --min 9 --dry                      > run1.txt
-  toldya --all --min 9 --add 1,2,3 --to CLAUDE.md > run2.txt
+  toldya --all --min 6 --dry                      > run1.txt
+  toldya --all --min 6 --add 1,2,4 --to CLAUDE.md > run2.txt
   cat CLAUDE.md                                   > run3.txt
 Only the typing animation is added. Usage: python scripts/demo_gif.py <folder with run*.txt>
 """
@@ -14,7 +14,7 @@ src = Path(sys.argv[1])
 out = Path(__file__).resolve().parent.parent / 'assets'
 out.mkdir(exist_ok=True)
 
-W, H, PAD, LH = 980, 410, 28, 26
+W, H, PAD, LH = 980, 440, 28, 26
 BG, BAR, FG, DIM = (22, 24, 33), (38, 41, 54), (226, 228, 235), (140, 146, 165)
 PINK, YEL, GRN, SAGE = (255, 144, 232), (255, 210, 63), (126, 231, 135), (152, 161, 121)
 font = ImageFont.truetype('C:/Windows/Fonts/consola.ttf', 18)
@@ -61,10 +61,10 @@ def scene(cmd, body, hold):
 read = lambda n: (src / f'run{n}.txt').read_text(encoding='utf-8').rstrip('\n').split('\n')
 run1 = read(1)
 while run1 and not run1[0].strip(): run1.pop(0)  # the tool prints a leading blank line
-scene('npx toldya --all --min 9 --dry', run1, 2600)
+scene('npx toldya --all --min 6 --dry', run1, 2600)
 report_png = frames[-1]
 run2 = read(2)
-scene('npx toldya --all --min 9 --add 1,2,3 --to CLAUDE.md', [run2[-1]], 1400)
+scene('npx toldya --all --min 6 --add 1,2,4 --to CLAUDE.md', [l for l in run2 if l.startswith('Added')], 1400)
 scene('cat CLAUDE.md', read(3), 3200)
 
 report_png.save(out / 'report.png')
