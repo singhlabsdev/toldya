@@ -11,6 +11,7 @@
       "name": "toldya",
       "description": "Finds the corrections you keep repeating to Claude Code and writes them into CLAUDE.md after you approve each one.",
       "source": "./",
+      "homepage": "https://singhlabs.dev/toldya/",
       "category": "productivity"
     }
   ]
